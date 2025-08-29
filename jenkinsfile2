@@ -6,14 +6,12 @@ node {
      gitcommit = readFile('.git/commit-id').trim()
    }
    stage('test') {
-       sh """
-    docker run --rm \
-      -v $PWD:/usr/src/app -w /usr/src/app \
-      node:4.6 sh -c '
-        npm install --only=dev &&
-        npm test
-      '
-  """
+     def contenedortest = docker.image('node:18')
+     contenedortest.pull()
+     contenedortest.inside {
+       sh 'npm install --only=dev'
+       sh 'npm test'
+     }
    }                   
    stage('Docker Build & Push') {
      docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') {
